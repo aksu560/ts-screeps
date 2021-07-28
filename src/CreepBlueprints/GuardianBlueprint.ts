@@ -16,7 +16,6 @@ export class GuardianBlueprint extends CreepBlueprint {
             body = body.concat(template);
             body.unshift(TOUGH);
         }
-        console.log(body);
         return body;
     }
     getPrice = (budget: number) => {

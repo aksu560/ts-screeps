@@ -33,7 +33,7 @@ export function getInitialRoomMemory(room: Room): RoomMemory{
 }
 
 export function addBuildingToPlan(x: number, y: number, room: Room, structure: StructureConstant) {
-    room.memory.visual.roomGrid[y][x].structure = structure;
+    room.memory.visual.roomGrid[x][y].structure = structure;
 }
 
 export function runArchitect(room: Room) {

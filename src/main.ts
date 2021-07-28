@@ -18,6 +18,7 @@ declare global {
     "DRONE_SPAWNER_ENERGY_DELIVERY" |
     "DRILLING" |
     "DRONE_UPGRADING" |
+    "GUARDIAN_DEFEND" |
     "IDLE"
 
     interface JobPhases {

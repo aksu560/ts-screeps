@@ -13,9 +13,11 @@ export const jobLogic: JobLogicObject = {
     'IDLE': (creep: Creep) => {
         idle(creep);
     },
-
     'DRONE_UPGRADING': (creep: Creep) => {
         droneUpgradeController(creep);
+    },
+    'GUARDIAN_DEFEND': (creep: Creep) => {
+
     }
 }
 
@@ -33,6 +35,6 @@ export function runJobLogic(room: Room) {
             console.log(creep.name, job, e);
             creep.memory.job = 'IDLE';
         }
-        creep.room.memory.currentJobs.push(job);9
+        creep.room.memory.currentJobs.push(job);
     }
 }

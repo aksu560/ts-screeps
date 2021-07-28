@@ -37,7 +37,7 @@ export function runRoomManager() {
                     idleCreepsObject[idleCreep.memory.type] = [idleCreep];
                     continue;
                 }
-                idleCreepsObject[idleCreep.memory.type].concat(idleCreep);
+                idleCreepsObject[idleCreep.memory.type] = idleCreepsObject[idleCreep.memory.type].concat(idleCreep);
             }
 
             // Create object tracking all the current jobs.
@@ -91,9 +91,13 @@ export function runRoomManager() {
 
             // If hostile creeps are present
             if (enemy_creeps.length > 0) {
+                console.log(enemy_creeps.length, "HOSTILE CREEPS IN ROOM", room.name);
                 let guardianCount = 0
+                let guardians: Creep[] = [];
                 for (let creep of all_creeps) {
                     if (creep.memory.type === "GUARDIAN") {
+                        creep.memory.job = "GUARDIAN_DEFEND";
+                        guardians.push(creep);
                         guardianCount++
                     }
                 }
