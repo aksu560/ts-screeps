@@ -123,7 +123,6 @@ export function runRoomManager() {
             runJobLogic(room);
             console.log(`Room ${room.name} Job CPU: ${Game.cpu.getUsed() - preJobCPU}`);
             console.log(`${room.name} CPU: ${Game.cpu.getUsed() - roomCPU}`);
-            return;
         }
     }
 }
