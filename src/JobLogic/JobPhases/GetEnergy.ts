@@ -1,4 +1,3 @@
-import profiler from "screeps-profiler";
 import { reserveMiningPosition, unReserveMiningPositions } from "utils/Room";
 
 export function GET_ENERGY(creep: Creep) {
@@ -7,12 +6,10 @@ export function GET_ENERGY(creep: Creep) {
         unReserveMiningPositions(creep);
         return "GOT_ENERGY";
     }
-    // If all positions full, wait.
-    let filteredMinerPosition = creep.memory.jobPos
-    if (!filteredMinerPosition) {
-        filteredMinerPosition = reserveMiningPosition(creep);
+    if (creep.memory.jobPos === undefined) {
+        creep.memory.jobPos = reserveMiningPosition(creep);
     }
-    if (filteredMinerPosition === undefined) {
+    if (creep.memory.jobPos === undefined) {
         return "GET_ENERGY";
     }
     // If in a miner position, harvest. TODO: Fix this position check shite
@@ -21,7 +18,6 @@ export function GET_ENERGY(creep: Creep) {
         return "GET_ENERGY"
     }
     // If not in a miner position, go to miner position.
-    creep.memory.jobPos = filteredMinerPosition;
     creep.memory.lastActionStatus = creep.moveTo(new RoomPosition(creep.memory.jobPos.x, creep.memory.jobPos.y, creep.memory.jobPos.roomName));
     return "GET_ENERGY";
 }

@@ -1,13 +1,17 @@
 import { jobLogic, runJobLogic } from "JobLogic/JobLogic";
+import profiler from "screeps-profiler";
 import { runArchitect } from "./RoomArchitect";
 
 function visualizeRoomPlan(room: Room) {
-    if (room.memory.visual.showVisuals === false) {
+    if (room.memory.visual.showVisuals === 0) {
         return;
     }
     const grid = room.memory.visual.roomGrid;
     for (let column of grid) {
         for (let cell of column) {
+            if (cell.cl > room.memory.visual.showVisuals) {
+                continue;
+            }
             // TODO: Make less liima.
             const lmao = [FIND_EXIT, TERRAIN_MASK_WALL, TERRAIN_MASK_SWAMP, TERRAIN_MASK_LAVA, 0]
             if (!lmao.includes(cell.structure as any)) {
@@ -17,7 +21,7 @@ function visualizeRoomPlan(room: Room) {
     }
 }
 
-export function runRoomManager() {
+export const runRoomManager = profiler.registerFN(() => {
     for (const room of Object.values(Game.rooms)) {
         // Room is under my control.
         if (room.controller && room.controller.my) {
@@ -25,7 +29,6 @@ export function runRoomManager() {
 
             if (!room.memory.name) {
                 const preArchCPU = Game.cpu.getUsed();
-                console.log("prearch", preArchCPU)
                 runArchitect(room);
                 console.log(`Room ${room.name} Architect CPU: ${Game.cpu.getUsed()-preArchCPU}`)
             }
@@ -48,11 +51,14 @@ export function runRoomManager() {
             for (const currentJob of room.memory.currentJobs) {
                 currentJobsObject[currentJob] += 1;
             }
+            // Empty the array of current jobs. It will be populated by creeps in runJobLogic().
+            room.memory.currentJobs = [];
+
 
             const all_creeps = room.find(FIND_MY_CREEPS);
 
             // RCL 1 is a special case, and when room is in it, we just want to upgrade ASAP.
-            if (room.controller.level !== 0) {
+            if (room.controller.level === 1) {
                 // We should maintain two drones for each mining position.
                 const targetDroneCount = room.memory.minerPositions.length * 2;
                 // Add the missing number of drones to the queue.
@@ -112,17 +118,13 @@ export function runRoomManager() {
                     room.memory.spawnqueue.push("GUARDIAN");
                 }
             }
-
-            room.memory.currentJobs = [];
-
             const roomCPU = Game.cpu.getUsed();
             const preVisualCPU = Game.cpu.getUsed();
             visualizeRoomPlan(room);
-            console.log(`Room ${room.name} Visualization CPU: ${Game.cpu.getUsed()-preVisualCPU}`);
             const preJobCPU = Game.cpu.getUsed();
             runJobLogic(room);
             console.log(`Room ${room.name} Job CPU: ${Game.cpu.getUsed() - preJobCPU}`);
             console.log(`${room.name} CPU: ${Game.cpu.getUsed() - roomCPU}`);
         }
     }
-}
+}, 'runRoomManager');

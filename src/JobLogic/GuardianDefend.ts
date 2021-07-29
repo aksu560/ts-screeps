@@ -1,8 +1,6 @@
 export function GUARDIAN_DEFEND(creep: Creep) {
-    let enemy_creeps = creep.room.find(FIND_HOSTILE_CREEPS);
     let target = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
-    if (enemy_creeps.length > 0) {
-        creep.memory.job = "IDLE";
+    if (!target) {
         return;
     }
     const healCreeps = creep.room.find(FIND_HOSTILE_CREEPS, {
@@ -12,10 +10,12 @@ export function GUARDIAN_DEFEND(creep: Creep) {
         target = healCreeps[0];
     }
     if (target && creep.pos.getRangeTo(target.pos) === 1) {
-        creep.attack(target);
+        creep.memory.lastActionStatus = creep.attack(target);
+        creep.memory.lastAction = "ATTACK_TARGET";
         return;
     }
     // @ts-ignore: Object is possibly 'null'.
-    creep.moveTo(target.pos);
+    creep.memory.lastActionStatus = creep.moveTo(target.pos);
+    creep.memory.lastAction = "MOVE_TO_TARGET";
     return;
 }

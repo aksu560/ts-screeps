@@ -3,12 +3,19 @@ import { placeRoadIfNeeded } from "utils/Room";
 export function GIVE_ENERY_TO_SPAWN(creep: Creep) {
     // Find spawns to deliver energy to.
     if (creep.memory.jobTarget === undefined) {
-        const spawns = creep.room.find(FIND_MY_SPAWNS);
-        if (spawns.length === 0) {
+        const spawn = creep.pos.findClosestByPath(FIND_MY_SPAWNS) as AnyStoreStructure;
+        const extension = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
+            filter: (structure: Structure) => (structure.structureType === STRUCTURE_EXTENSION),
+        }) as AnyStoreStructure;
+        if (!spawn) {
             console.log("How the fuck? Room: ", creep.room.name);
             return "GIVE_ENERGY_TO_SPAWN"
         }
-        creep.memory.jobTarget = spawns[0];
+        let targetlist = [spawn];
+        if (extension) {
+            targetlist.push(extension);
+        }
+        creep.memory.jobTarget = creep.pos.findClosestByPath(targetlist) as AnyStoreStructure;
     }
     // If not in range, move towards it.
     if (creep.pos.getRangeTo(Game.getObjectById(creep.memory.jobTarget.id) as StructureSpawn) > 1) {
