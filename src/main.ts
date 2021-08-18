@@ -52,11 +52,37 @@ declare global {
         creep: Creep
     }
 
+    enum VisualStructure {
+        EMPTY,
+        NATURAL_WALL,
+        SWAMP,
+        SPAWN = "spawn",
+        EXTENSION = "extension",
+        ROAD = "road",
+        WALL = "constructedWall",
+        RAMPART = "rampart",
+        KEEPER_LAIR = "keeperLair",
+        PORTAL = "portal",
+        CONTROLLER = "controller",
+        LINK = "link",
+        STORAGE = "storage",
+        TOWER = "tower",
+        OBSERVER = "observer",
+        POWER_BANK = "powerBank",
+        POWER_SPAWN = "powerSpawn",
+        EXTRACTOR = "extractor",
+        LAB = "lab",
+        TERMINAL = "terminal",
+        CONTAINER = "container",
+        NUKER = "nuker",
+        FACTORY = "factory",
+        INVADER_CORE = "invaderCore"
+    }
+
     interface VisualGridCell {
         x: number;
         y: number;
-        // TODO: Ei näin
-        structure: StructureConstant | undefined | FIND_EXIT | TERRAIN_MASK_WALL | TERRAIN_MASK_SWAMP | TERRAIN_MASK_LAVA | 0;
+        structure: VisualStructure;
         cl: number;
     }
 
@@ -77,6 +103,7 @@ declare global {
         minerPositions: RoomPosition[];
         occupiedPositions: OccupiedPosition[];
         visual: VisualMemory;
+        visualLevel: number;
     }
 
     interface IdleCreepsObject {

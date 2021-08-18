@@ -1,27 +1,26 @@
 import { jobLogic, runJobLogic } from "JobLogic/JobLogic";
 import profiler from "screeps-profiler";
-import { runArchitect } from "./RoomArchitect";
+import { getStructureInPosFromPlan, runArchitect } from "./RoomArchitect";
 
-function visualizeRoomPlan(room: Room) {
-    if (room.memory.visual.showVisuals === 0) {
+export const visualizeRoom = profiler.registerFN((room: Room) => {
+    const grid = room.memory.visual.roomGrid;
+    if (!grid) {
         return;
     }
-    const grid = room.memory.visual.roomGrid;
-    for (let column of grid) {
-        for (let cell of column) {
-            if (cell.cl > room.memory.visual.showVisuals) {
-                continue;
-            }
-            // TODO: Make less liima.
-            const lmao = [FIND_EXIT, TERRAIN_MASK_WALL, TERRAIN_MASK_SWAMP, TERRAIN_MASK_LAVA, 0]
-            if (!lmao.includes(cell.structure as any)) {
-                room.visual.structure(cell.x, cell.y, cell.structure as any);
+    for (let x = 0; x < grid.length; x++) {
+        for (let y = 0; y < grid[x].length; y++) {
+            if (grid[x][y].cl <= room.memory.visual.showVisuals) {
+                const struct = getStructureInPosFromPlan(new RoomPosition(x, y, room.name));
+                if (struct) {
+                    room.visual.structure(x, y, struct);
+                }
             }
         }
     }
-}
+}, "RoomManager.visualizeRoom");
 
 export const runRoomManager = profiler.registerFN(() => {
+    const roomCPU = Game.cpu.getUsed();
     for (const room of Object.values(Game.rooms)) {
         // Room is under my control.
         if (room.controller && room.controller.my) {
@@ -29,7 +28,13 @@ export const runRoomManager = profiler.registerFN(() => {
 
             if (!room.memory.name) {
                 const preArchCPU = Game.cpu.getUsed();
-                runArchitect(room);
+                runArchitect(room, 1);
+                console.log(`Room ${room.name} Architect CPU: ${Game.cpu.getUsed()-preArchCPU}`)
+            }
+
+            if (room.memory.visualLevel < 8) {
+                const preArchCPU = Game.cpu.getUsed();
+                runArchitect(room, room.memory.visualLevel + 1);
                 console.log(`Room ${room.name} Architect CPU: ${Game.cpu.getUsed()-preArchCPU}`)
             }
 
@@ -118,9 +123,9 @@ export const runRoomManager = profiler.registerFN(() => {
                     room.memory.spawnqueue.push("GUARDIAN");
                 }
             }
-            const roomCPU = Game.cpu.getUsed();
-            const preVisualCPU = Game.cpu.getUsed();
-            visualizeRoomPlan(room);
+            if (room.memory.visual.showVisuals > 0) {
+                visualizeRoom(room);
+            }
             const preJobCPU = Game.cpu.getUsed();
             runJobLogic(room);
             console.log(`Room ${room.name} Job CPU: ${Game.cpu.getUsed() - preJobCPU}`);
